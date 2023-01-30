@@ -6,3 +6,6 @@
 
 # ignore env files
 *.env
+
+# azure functions localhost settings
+local.settings.json

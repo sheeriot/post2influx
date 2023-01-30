@@ -23,18 +23,10 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     logging.info(F'Influx Org: https://{influx_host}/orgs/{influx_orgid}')
 
     if 'mtagid' in enrichments:
-        # if enrichments['mtagid'] == "1":
-        #     influx_bucket = os.environ['MTAG1_BUCKET']
-        #     mtag_writer = os.environ['MTAG1_WRITER']
-        #     meas_name = "mtag1"
-        if enrichments['mtagid'] == "2":
-            influx_bucket = os.environ['MTAG2_BUCKET']
-            mtag_writer = os.environ['MTAG2_WRITER']
-            meas_name = "mtag2"
-        elif enrichments['mtagid'] == "0":
-            influx_bucket = os.environ['MTAG0_BUCKET']
-            mtag_writer = os.environ['MTAG0_WRITER']
-            meas_name = "mtag0"
+        if enrichments['mtagid'] == "1":
+            influx_bucket = os.environ['MTAG1_BUCKET']
+            mtag_writer = os.environ['MTAG1_WRITER']
+            meas_name = "mtop1"
         else:
             meas_name = "nomtag"
     else:
@@ -85,7 +77,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         meas.add_value('gw_altitude', int(telemetry['gw_location']['alt']))
 
 
-    # Add Tags - enumerate from CSV
+    # Add Tags - CSV - commas ugh
     if 'tags' in telemetry:
         for i, val in enumerate(telemetry['tags'].split(",")):
             meas.add_value(f"tag{i+1}", str(val))
