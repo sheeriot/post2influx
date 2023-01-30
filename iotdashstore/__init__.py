@@ -81,8 +81,13 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     # Add Gateway Location if provided
     if 'gw_location' in telemetry: 
         meas.add_value('gw_latitude', round(telemetry['gw_location']['lat'],6))
-        meas.add_value('gw_longitude', round(telemetry['gw_location']['lon'],6)
+        meas.add_value('gw_longitude', round(telemetry['gw_location']['lon'],6))
         meas.add_value('gw_altitude', int(telemetry['gw_location']['alt']))
+
+
+    # Add Tags - CSV - commas ugh
+    if 'tags' in telemetry: 
+        meas.add_value('tags', str(telemetry['tags']))
 
     # Record Measurement in Logs for Debug
     logging.info(F"Saving to Measurement:\n{meas}")
@@ -93,7 +98,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     logging.info(F'InfluxCloud_URL: {influxcloud_url}')
     
     # check settings
-    logging.info(F'MTAG_TOKEN: {mtag_writer}')
+    # logging.info(F'MTAG_TOKEN: {mtag_writer}')
     headers = {
         'Authorization': F'Token {mtag_writer}',
         'Content-Type': 'text/plain; charset=utf-8',
@@ -101,6 +106,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     }
     influxcloud_response = requests.post(influxcloud_url, headers=headers, data=str(meas))
  
+    logging.info(F'InfluxCloud Response:\n{influxcloud_response}')
     return func.HttpResponse(
         F'InfluxCloud Response: {influxcloud_response}\n',
         status_code=200
