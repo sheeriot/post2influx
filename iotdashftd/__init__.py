@@ -20,7 +20,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     logging.info(F'Telemetry Received:\n{telemetry}')
     influx_host = os.environ['INFLUX_HOST']
     influx_orgid = os.environ['INFLUX_ORGID']
-    logging.info(F'Influx Org: https://{influx_host}/orgs/{influx_orgid}')
+    logging.info(F'Influx Org URL: https://{influx_host}/orgs/{influx_orgid}')
 
     if 'mtagid' in enrichments:
         if enrichments['mtagid'] == "2":
@@ -39,7 +39,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     meas.add_tag('gateway_eui', str(telemetry['gateway']))
 
     if 'decoder' in telemetry:
-        meas.add_value('decoder', telemetry['decoder]'])
+        meas.add_value('decoder', telemetry['decoder'])
     
     # Calculate and store measurement timestamp for 'influxdb line protocol' - nano seconds.
     if 'rx_time' in telemetry:
@@ -104,6 +104,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             meas.add_value(f"tag{i+1}", str(val))
 
     # Decoded Payload
+    if 'message_type' in telemetry:
+        meas.add_value('message_type', str(telemetry['message_type']))
     if 'temperature' in telemetry: 
         meas.add_value('temperature', telemetry['temperature'])
     if 'battery_voltage' in telemetry: 
@@ -118,10 +120,6 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         meas.add_value('gps_hdop', telemetry['gps_hdop'])
     if 'gps_valid' in telemetry: 
         meas.add_value('gps_valid', bool(telemetry['gps_valid']))
-    if 'gps_sats' in telemetry: 
-        meas.add_value('gps_sats', telemetry['gps_sats'])
-    if 'message_type' in telemetry:
-        meas.add_value('message_type', str(telemetry['message_type]']))
     if 'dl_counter' in telemetry: 
         meas.add_value('dl_counter', telemetry['dl_counter'])
     if 'dl_rssi' in telemetry: 
@@ -132,6 +130,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     if 'device_location' in telemetry:
         meas.add_value('latitude', telemetry['device_location']['lat'])
         meas.add_value('longitude', telemetry['device_location']['lon'])
+
     # Share (base64) payload
     if 'payload_base64' in telemetry:
         meas.add_value('payload_base64', telemetry['payload_base64'])
@@ -142,10 +141,11 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     # send it to InfluxDB Cloud
  
     influxcloud_url = F'https://{influx_host}/api/v2/write?org={influx_orgid}&bucket={influx_bucket}&precision=ns'
-    logging.info(F'InfluxCloud_URL: {influxcloud_url}')
-    
+
     # check settings
+    logging.info(F'InfluxCloud_URL: {influxcloud_url}')
     # logging.info(F'MTAG_TOKEN: {mtag_writer}')
+
     headers = {
         'Authorization': F'Token {mtag_writer}',
         'Content-Type': 'text/plain; charset=utf-8',
