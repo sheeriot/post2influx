@@ -39,7 +39,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     meas.add_tag('gateway_eui', str(telemetry['gateway']))
 
     # Calculate and store measurement timestamp for 'influxdb line protocol' - nano seconds.
-    if rx_time in telemetry:
+    if 'rx_time' in telemetry:
         rx_time=telemetry['rx_time']
     else:
         rx_time=telemetry['radio_time']
