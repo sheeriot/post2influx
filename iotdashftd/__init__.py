@@ -26,7 +26,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         if enrichments['mtagid'] == "2":
             influx_bucket = os.environ['MTAG2_BUCKET']
             mtag_writer = os.environ['MTAG2_WRITER']
-            meas_name = "ftd"
+            meas_name = "aftd"
         else:
             meas_name = "nomtag"
     else:
@@ -47,6 +47,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     else:
         rx_time=telemetry['radio_time']
     meas.add_value('rx_time',str(rx_time))
+    meas.add_value('rcv_time',str(rx_time))
     # store with correct time for digit count in provided rx_time string
     digits = len(str(telemetry['rx_time'])) - 11
     # adjust to nanoseconds rounded integer (pad zeros)
@@ -57,6 +58,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     # counter_up is key to find missed frames
     if 'counter_up' in telemetry: 
         meas.add_value('counter_up', int(telemetry['counter_up']))
+        meas.add_value('f_count', int(telemetry['counter_up']))
 
     # Add Radio Info
     if 'rssi' in telemetry:
