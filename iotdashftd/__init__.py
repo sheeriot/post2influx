@@ -43,6 +43,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     digits = len(str(telemetry['rx_time'])) - 11
     point_time=int(round(Decimal(telemetry['rx_time']),digits)*1000000000)
 
+    # build point from metadata
     point = (
         Point(meas)
         .time(point_time)
@@ -70,22 +71,37 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         .field('delay', telemetry['delay'])
         .field('gw_latitude', telemetry['gw_location']['lat'])
         .field('gw_longitude', telemetry['gw_location']['lon'])
-        .field('gw_altitude', int(telemetry['gw_location']['alt']))
-        .field('message_type', telemetry['message_type']) if 'message_type in telemetry else skip
-        .field('temperature', telemetry['temperature']) if 'temperature' in telemetry else skip
-        .field('battery_voltage', telemetry['battery_voltage']) if 'battery_voltage' in telemetry else skip
-        .field('ul_counter', int(telemetry['ul_counter'])) if 'ul_counter' in telemetry else skip
-        .field('gps_quality', str(telemetry['gps_quality'])) if 'temperature' in telemetry else skip
-        .field('gps_sats', int(telemetry['gps_sats'])) if 'gps_sats' in telemetry else skip
-        .field('gps_hdop', telemetry['gps_hdop']) if 'gps_hdop' in telemetry else skip
-        .field('gps_valid', bool(telemetry['gps_valid'])) if 'gps_valid' in telemetry else skip
-        .field('dl_counter', telemetry['dl_counter']) if 'dl_counter' in telemetry else skip
-        .field('dl_rssi', bool(telemetry['dl_rssi'])) if 'dl_rssi' in telemetry else skip
-        .field('dl_snr', telemetry['dl_snr']) if 'dl_snr' in telemetry else skip
-        .field('latitude', telemetry['device_location']['lat']) if 'device_location' in telemetry else skip
-        .field('longitude', telemetry['device_location']['lon']) if 'device_location' in telemetry else skip
+        .field('gw_altitude', telemetry['gw_location']['alt'])
     )
 
+    # Add decoded device data if present
+    if 'message_type' in telemetry:
+        point.field('message_type', telemetry['message_type'])
+    if 'temperature' in telemetry:
+        point.field('temperature', telemetry['temperature']) 
+    if 'battery_voltage' in telemetry:
+        point.field('battery_voltage', telemetry['battery_voltage']) 
+    if 'ul_counter' in telemetry:
+        point.field('ul_counter', telemetry['ul_counter'])
+    if 'gps_quality' in telemetry: 
+        point.field('gps_quality', telemetry['gps_quality'])
+    if 'gps_sats' in telemetry:
+        point.field('gps_sats', telemetry['gps_sats']) 
+    if 'gps_hdop' in telemetry: 
+        point.field('gps_hdop', telemetry['gps_hdop'])
+    if 'gps_valid' in telemetry: 
+        point.field('gps_valid', bool(telemetry['gps_valid'])) 
+    if 'dl_counter' in telemetry: 
+        point.field('dl_counter', telemetry['dl_counter'])
+    if 'dl_rssi' in telemetry: 
+        point.field('dl_rssi', telemetry['dl_rssi'])
+    if 'dl_snr' in telemetry: 
+        point.field('dl_snr', telemetry['dl_snr'])
+    if 'device_location' in telemetry: 
+        point.field('latitude', telemetry['device_location']['lat'])
+    if 'device_location' in telemetry: 
+        point.field('longitude', telemetry['device_location']['lon'])
+    
     # Add Tags from csv string
     if 'tags' in telemetry:
         for i, val in enumerate(telemetry['tags'].split(",")):
