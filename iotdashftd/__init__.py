@@ -26,7 +26,11 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         if enrichments['mtagid'] == "2":
             influx_bucket = os.environ['MTAG2_BUCKET']
             mtag_writer = os.environ['MTAG2_WRITER']
-            meas_name = "aftd"
+            meas_name = "ftd"
+        elif enrichments['mtagid'] == "3":
+            influx_bucket = os.environ['MTAG3_BUCKET']
+            mtag_writer = os.environ['MTAG3_WRITER']
+            meas_name = "ftd"
         else:
             meas_name = "nomtag"
     else:
@@ -46,8 +50,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         rx_time=telemetry['rx_time']
     else:
         rx_time=telemetry['radio_time']
-    meas.add_value('rx_time',str(rx_time))
-    meas.add_value('rcv_time',str(rx_time))
+    meas.add_value('rx_time',rx_time)
+    meas.add_value('rcv_time',rx_time)
     # store with correct time for digit count in provided rx_time string
     digits = len(str(telemetry['rx_time'])) - 11
     # adjust to nanoseconds rounded integer (pad zeros)
