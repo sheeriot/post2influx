@@ -5,3 +5,4 @@
 azure-functions
 requests
 influx_line_protocol
+influxdb-client
