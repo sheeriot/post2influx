@@ -22,7 +22,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         if enrichments['mtagid'] == "2":
             bucket = os.environ['MTAG2_BUCKET']
             token = os.environ['MTAG2_WRITER']
-            meas = "test2"
+            meas = "ftd"
         elif enrichments['mtagid'] == "3":
             bucket = os.environ['MTAG3_BUCKET']
             token = os.environ['MTAG3_WRITER']
@@ -43,6 +43,9 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     digits = len(str(telemetry['rx_time'])) - 11
     point_time=int(round(Decimal(telemetry['rx_time']),digits)*1000000000)
 
+    if 'snr' in telemetry:
+        logging.info(F"SNR:{telemetry['snr']},SNR_TYPE:{type(telemetry['snr'])}")
+    
     # build point from metadata
     point = (
         Point(meas)
@@ -56,11 +59,11 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         .field('counter_up', telemetry['counter_up'])
         .field('f_count', telemetry['counter_up'])
         .field('rssi', telemetry['rssi'])
-        .field('snr', telemetry['snr'])
+        .field('snr', float(telemetry['snr']))
         .field('frame_size', telemetry['size'])
         .field('port', telemetry['port'])
         .field('payload_base64', telemetry['payload_base64'])
-        .field('frequency', telemetry['frequency'])
+        .field('frequency', str(telemetry['frequency']))
         .field('bandwidth', telemetry['bandwidth'])
         .field('datarate', telemetry['datarate'])
         .field('spreading_factor', telemetry['spreading_factor'])
