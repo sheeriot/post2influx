@@ -39,7 +39,10 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     meas.add_tag('gateway_eui', str(telemetry['gateway']))
 
     # Calculate and store measurement timestamp for 'influxdb line protocol' - nano seconds.
-    rx_time=telemetry['rx_time']
+    if 'rx_time' in telemetry:
+        rx_time=telemetry['rx_time']
+    else:
+        rx_time=telemetry['radio_time']
     meas.add_value('rx_time',str(rx_time))
     # store with correct time for digit count in provided rx_time string
     digits = len(str(telemetry['rx_time'])) - 11
@@ -74,7 +77,10 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     if 'gw_location' in telemetry: 
         meas.add_value('gw_latitude', round(telemetry['gw_location']['lat'],6))
         meas.add_value('gw_longitude', round(telemetry['gw_location']['lon'],6))
-        meas.add_value('gw_altitude', int(telemetry['gw_location']['alt']))
+        if 'alt' in telemetry['gw_location']:
+            meas.add_value('gw_altitude', int(telemetry['gw_location']['alt']))
+        else:
+            meas.add_value('gw_altitude', int(0))
 
 
     # Add Tags - CSV - commas ugh
